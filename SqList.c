@@ -99,7 +99,7 @@ int main() {
     PrintList(L);
     printf("%d\n", Length(L));
     ElemType e;
-    ListDelete(L,2,&e);
+    ListDelete(L, 2, &e);
     PrintList(L);
     return 0;
 }
