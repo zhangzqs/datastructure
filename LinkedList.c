@@ -17,20 +17,18 @@ LinkedList NewLinkedList() {
 }
 
 // 在某结点后插入新结点元素
-// void InsertAfter(Node *node, ElemType e){
-//     Node *n = malloc(sizeof(Node));
-//     n->data = e;
-//     n->next = node->next;
-//     node->next = n;
-// }
+Node *InsertAfter(Node *node, ElemType e){
+    Node *n = malloc(sizeof(Node));
+    n->data = e;
+    n->next = node->next;
+    node->next = n;
+    return n;
+}
 
 // 在某结点后以头插法建立单链表
 void HeadInsert(Node* node, ElemType *arr, int size) {
     for(int i=0;i<size;i++){
-        Node *n = malloc(sizeof(Node));
-        n->data = arr[i];
-        n->next = node->next;
-        node ->next = n;
+        InsertAfter(node, arr[i]);
     }
 }
 
@@ -39,11 +37,7 @@ void TailInsert(Node* node, ElemType *arr, int size) {
     // 指向尾结点的指针
     Node *r = node;
     for(int i=0;i<size;i++){
-        Node *n = malloc(sizeof(Node));
-        n->data = arr[i];
-        n->next = r->next;
-        r->next = n;
-        r = n;
+        r = InsertAfter(r, arr[i]);
     }
 }
 
