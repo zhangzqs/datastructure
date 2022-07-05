@@ -1,7 +1,7 @@
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 typedef int ElemType;
 
@@ -61,29 +61,41 @@ bool GetHead(SqQueue *s, ElemType *e) {
     *e = s->data[s->front];
 }
 
-
 int QueueSize(SqQueue *s) { return (s->len + s->rear - s->front) % s->len; }
 
 int main() {
     ElemType e;
+    int i,j;
 
-    SqQueue sq,*psq=&sq;
+    SqQueue sq, *psq = &sq;
     InitSqQueue(psq, 3);
-    for(int i=0;i<3;i++) {
+    assert(QueueSize(psq) == 0);
+    for (i = 0; i < 3; i++) {
         EnQueue(psq, i);
+        assert(QueueSize(psq) == i + 1);
     }
     // 此时队满
     assert(QueueFull(psq) == true);
+    assert(QueueSize(psq) == 3);
+
     // 此时无法入队
     assert(EnQueue(psq, 3) == false);
-    
-    while(!QueueEmpty(psq)) {
-        DeQueue(psq,&e);
-        printf("%d ",e);
+
+    i = 3;
+    j=0;
+    while (!QueueEmpty(psq)) {
+        assert(QueueSize(psq) == i);
+
+        DeQueue(psq, &e);
+        assert(e == j);
+        i--;
+        j++;
     }
-    printf("\n");
+    assert(QueueSize(psq) == 0);
 
     // 此时无法出队
     assert(DeQueue(psq, &e) == false);
+
+    printf("Test successful!!!");
     return 0;
 }
