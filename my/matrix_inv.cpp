@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include<algorithm>
 using namespace std;
 
 /// 矩阵接口
@@ -90,6 +91,30 @@ class CominorMatrix : public IMatrix<T> {
     // 获取元素
     inline T get(int row, int col) override {
         return _mat.get(row < _row ? row : row + 1, col < _col ? col : col + 1);
+    }
+};
+
+// 求子式对应的矩阵
+template <class T>
+class SubMatrix : public IMatrix<T> {
+   private:
+    IMatrix<T>& _mat;
+    vector<int>& _rowIdx;
+    vector<int>& _colIdx;
+
+   public:
+    explicit CominorMatrix(IMatrix<T>& mat, vector<int>& rowIdx, vector<int>& colIdx)
+        : _mat(mat), _rowIdx(rowIdx), _colIdx(colIdx) {}
+
+    inline int cols() override { return _colIdx.size(); }
+    inline int rows() override { return _rowIdx.size(); }
+    // 设置元素
+    inline void set(int row, int col, T e) override {
+        __throw_runtime_error("CominorMatrix cannot be set value");
+    }
+    // 获取元素
+    inline T get(int row, int col) override {
+        return _mat.get(_rowIdx[row], _colIdx[col]);
     }
 };
 
@@ -185,6 +210,7 @@ class InversionMatrix : public IMatrix<double> {
     }
 };
 
+/// 使用代数余子式展开求解行列式
 template <class T>
 T determinant(IMatrix<T>& mat) {
     if (mat.cols() != mat.rows()) {
@@ -192,6 +218,8 @@ T determinant(IMatrix<T>& mat) {
         s += "determinant matrix columns not equal to rows";
         __throw_runtime_error(s.c_str());
     }
+    
+    // 只有一个数字的1*1矩阵，直接返回它本身
     if (mat.cols() == 1) {
         return mat.get(0, 0);
     }
@@ -203,13 +231,66 @@ T determinant(IMatrix<T>& mat) {
         // 求余子式
         CominorMatrix<T> cm(mat, 0, c);
         T cominor = determinant(cm);
+
+        // 代数余子式累加
         sum += sig * mat.get(0, c) * cominor;
-        sig *= -1;
+        sig *= -1; 
     }
     return sum;
 }
 
-int main() {
+/// 逆序数求解
+int reverseOrderNumber(int* arr, int size) {
+    int result = 0;
+    for(int i=0;i<size-1;i++) {
+        for(int j=i+1;j<size;j++) {
+            if(arr[i] > arr[j]) {
+                result += 1;
+            }
+        }
+    }
+    return result;
+}
+
+/// 逆序数法求解行列式
+template <class T>
+T determinant2(IMatrix<T>& mat) {
+    if (mat.cols() != mat.rows()) {
+        string s = mat.to_string();
+        s += "determinant matrix columns not equal to rows";
+        __throw_runtime_error(s.c_str());
+    }
+
+    T sum = 0;
+
+    int n = mat.cols();
+    vector<int> s(n);
+    for(int i=0;i<n;i++) s[i] = i;
+    do{
+        int r = reverseOrderNumber(s.data(),s.size());
+        int p = 1;
+        for(int i=0;i<n;i++) p *= mat.get(i, s[i]);
+        sum += (r % 2 == 0?1:-1) * p;
+    }while(next_permutation(s.begin(),s.end()));
+    return sum;
+}
+
+
+
+int main2() {
+    const int m = 4;
+    NormalMatrix<int> nm(m, m, 0);
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            nm.set(i, j, i * m + j);
+        }
+    }
+    cout<<determinant(nm)<<endl;
+    cout<<determinant2(nm)<<endl;
+    return 0;
+}
+
+int main1() {
     const int m = 100;
     NormalMatrix<int> nm(m, m, 0);
     for (int i = 0; i < m; i++) {
